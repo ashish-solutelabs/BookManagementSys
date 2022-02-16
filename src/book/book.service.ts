@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BookEntity } from './book.entity';
@@ -8,9 +8,19 @@ import { Book } from './book.interface';
 export class BookService {
     constructor(@InjectRepository(BookEntity) private repo:Repository<BookEntity>){}
 
-    async create(books:Book):Promise<BookEntity>{
-        return this.repo.save(books);
+    async create(books:Book,ISBN:number){
+        const duplicateISBN = await this.repo.findOne({ISBN});
+
+        if(duplicateISBN)
+        {
+            throw new NotAcceptableException("Duplicate ISBN number found");
+        }
+        else{
+            return this.repo.save(books);
+        }
     }
+
+
     findAllBook():Promise<BookEntity[]>{
         return  this.repo.find();
     }
@@ -20,12 +30,10 @@ export class BookService {
     }
 
     findBookByBookName(BookName:string){
-        console.log("Bookname:",BookName)
         return this.repo.findOne({BookName});
     }
 
     findBookByAuther(Auther:string){
-        console.log("Aurther: ",Auther)
         return this.repo.find({Auther})
     }
 
@@ -36,9 +44,8 @@ export class BookService {
     async updateDataByISBN(ISBN:number,attrs:Partial<BookEntity>){
         const bookInfo = await this.repo.findOne({ISBN});
         if(!bookInfo){
-            throw new Error("Book Doesn't exist in our database")
+            throw new NotFoundException("Book Doesn't exist in our database")
         }
-        console.log("---------------")
         Object.assign(bookInfo,attrs);
         return this.repo.save(bookInfo);
     }
@@ -46,7 +53,7 @@ export class BookService {
     {
         const bookInfo = await this.repo.findOne({ISBN});
         if(!bookInfo){
-            throw new Error("Book Doesn't exist in our database")
+            throw new NotFoundException("Book Doesn't exist in our database")
         }
         return this.repo.remove(bookInfo);
     }

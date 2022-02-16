@@ -6,7 +6,7 @@ export class BookEntity{
     @PrimaryGeneratedColumn()
     id:number;
 
-    @Column({unique:true})
+    @Column()
     ISBN: number;
 
     @Column()
