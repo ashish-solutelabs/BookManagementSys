@@ -5,12 +5,12 @@ import { Book } from './entity/book.entity';
 
 @Injectable()
 export class BookService {
+
     constructor(@InjectRepository(Book) private repo: Repository<Book>) { }
 
 
-    async findBookDetails(paginationQuery){
+    async findBookDetails(paginationQuery:any){
         
-        const{ isbn ,auther, bookName, } = paginationQuery;
         console.log(paginationQuery)
         const bookInfo =  await this.repo.find(paginationQuery)
 
@@ -32,6 +32,7 @@ export class BookService {
         }
 
         const status = await this.repo.save(books);
+
         if (!status) {
             throw new NotAcceptableException("Data is not store in server");
         }

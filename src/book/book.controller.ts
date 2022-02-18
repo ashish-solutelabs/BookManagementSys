@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Put, Query, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { BookService } from './book.service';
 import { CreateBookDto } from './dto/create-book.dto';
+import { PaginationQuery } from './dto/paginationQuery.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 
 @Controller('book')
@@ -10,7 +11,7 @@ export class BookController {
     
 
     @Get()
-    async findBookDetails(@Query() paginationQuery ){
+    async findBookDetails(@Query() paginationQuery:PaginationQuery){
         const bookInfo  = await this.bookService.findBookDetails(paginationQuery)
         return bookInfo
     }
@@ -39,5 +40,4 @@ export class BookController {
         const status = await this.bookService.removeBookDataByISBN(id); 
         return status;
     }
-
 }
