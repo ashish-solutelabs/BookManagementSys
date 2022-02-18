@@ -1,60 +1,78 @@
 import { Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BookEntity } from './book.entity';
-import { Book } from './book.interface';
+import { Book } from './entity/book.entity';
 
 @Injectable()
 export class BookService {
-    constructor(@InjectRepository(BookEntity) private repo:Repository<BookEntity>){}
+    constructor(@InjectRepository(Book) private repo: Repository<Book>) { }
 
-    async create(books:Book,ISBN:number){
-        const duplicateISBN = await this.repo.findOne({ISBN});
 
-        if(duplicateISBN)
-        {
+    async findBookDetails(paginationQuery){
+        
+        const{ isbn ,auther, bookName, } = paginationQuery;
+        console.log(paginationQuery)
+        const bookInfo =  await this.repo.find(paginationQuery)
+
+        if (!bookInfo){
+            throw new NotFoundException("Book doesn't found in database")
+        }
+        return {
+            success: "true",
+            message: bookInfo
+        }
+    }
+
+    async create(books: any) 
+    {
+        const isbn = books.isbn;
+        const duplicateISBN = await this.repo.findOne({ isbn });
+        if (duplicateISBN) {
             throw new NotAcceptableException("Duplicate ISBN number found");
         }
-        else{
-            return this.repo.save(books);
+
+        const status = await this.repo.save(books);
+        if (!status) {
+            throw new NotAcceptableException("Data is not store in server");
+        }
+        return {
+            success: true,
+            message: `${books.bookName} is successfully save In database`
         }
     }
 
+    async updateDataByISBN(id: number, attrs: Partial<Book>) {
+        const bookInfo = await this.repo.findOne(id);
 
-    findAllBook():Promise<BookEntity[]>{
-        return  this.repo.find();
-    }
-
-    findBookByISBN(ISBN:number){
-        return this.repo.findOne({ISBN});
-    }
-
-    findBookByBookName(BookName:string){
-        return this.repo.findOne({BookName});
-    }
-
-    findBookByAuther(Auther:string){
-        return this.repo.find({Auther})
-    }
-
-    findBookByLanguage(Language:string){
-        return this.repo.find({Language});
-    }
-
-    async updateDataByISBN(ISBN:number,attrs:Partial<BookEntity>){
-        const bookInfo = await this.repo.findOne({ISBN});
-        if(!bookInfo){
+        if (!bookInfo) {
             throw new NotFoundException("Book Doesn't exist in our database")
         }
-        Object.assign(bookInfo,attrs);
-        return this.repo.save(bookInfo);
-    }
-    async removeBookDataByISBN(ISBN:number)
-    {
-        const bookInfo = await this.repo.findOne({ISBN});
-        if(!bookInfo){
-            throw new NotFoundException("Book Doesn't exist in our database")
+
+        Object.assign(bookInfo, attrs);
+        const status = await this.repo.save(bookInfo);
+
+        if (!status) {
+            throw new NotAcceptableException("Data is not store in server");
         }
-        return this.repo.remove(bookInfo);
+        return {
+            success: true,
+            message: `${status.id} book is Update Successfully`
+        }
+    }
+
+    async removeBookDataByISBN(id:number)
+        {
+            const bookInfo = await this.repo.findOne(id);
+            if(!bookInfo){
+                throw new NotFoundException("Book Doesn't exist in our database")
+            }
+            const status= this.repo.remove(bookInfo);
+            if (!status) {
+                throw new NotAcceptableException("Data is not store in server");
+            }
+            return {
+                success: true,
+                message: `${bookInfo.bookName} is successfully save In database`
+            }
     }
 }

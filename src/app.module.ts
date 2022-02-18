@@ -1,20 +1,21 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { BookModule } from './book/book.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BookEntity } from './book/book.entity';
-
+import { Book } from './book/entity/book.entity';
 
 
 @Module({ 
   imports: [TypeOrmModule.forRoot({
-    type:'sqlite',
-    database:'db.sqlite',
-    entities:[BookEntity],
-    synchronize:true
+    type: 'postgres', // type of our database
+    host: 'localhost', // database host
+    port: 5432, // database host
+    username: 'postgres', // username
+    password: '1230', // user passwords
+    database: 'postgres', // name of our database,
+    entities: [Book], // models will be loaded automatically 
+    synchronize: true, // your entities wil
   }),BookModule],
-  controllers: [AppController],
-  providers: [AppService],
 })
+
+
 export class AppModule {}
