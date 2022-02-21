@@ -6,14 +6,14 @@ import { Book } from './book/entity/book.entity';
 
 @Module({ 
   imports: [TypeOrmModule.forRoot({
-    type: 'postgres', // type of our database
-    host: 'localhost', // database host
-    port: 5432, // database host
-    username: 'postgres', // username
-    password: '1230', // user passwords
-    database: 'postgres', // name of our database,
-    entities: [Book], // models will be loaded automatically 
-    synchronize: true, // your entities wil
+    type: 'postgres',
+    host: 'localhost', 
+    port: 5432, 
+    username: 'postgres', 
+    password: '1230', 
+    database: 'postgres',
+    entities: [Book], 
+    synchronize: true,
   }),BookModule],
 })
 

@@ -6,12 +6,10 @@ import { Book } from './entity/book.entity';
 @Injectable()
 export class BookService {
 
-    constructor(@InjectRepository(Book) private repo: Repository<Book>) { }
+    constructor(@InjectRepository(Book) private repo: Repository<Book>) {}
 
-
-    async findBookDetails(paginationQuery:any){
-        
-        console.log(paginationQuery)
+    async findBookDetails(paginationQuery:any)
+    { 
         const bookInfo =  await this.repo.find(paginationQuery)
 
         if (!bookInfo){
@@ -25,8 +23,11 @@ export class BookService {
 
     async create(books: any) 
     {
-        const isbn = books.isbn;
-        const duplicateISBN = await this.repo.findOne({ isbn });
+        // const isbn = books.isbn;
+        const {isbn} =books
+
+        const duplicateISBN = await this.repo.findOne(isbn);
+
         if (duplicateISBN) {
             throw new NotAcceptableException("Duplicate ISBN number found");
         }
@@ -50,6 +51,7 @@ export class BookService {
         }
 
         Object.assign(bookInfo, attrs);
+        
         const status = await this.repo.save(bookInfo);
 
         if (!status) {
@@ -67,7 +69,8 @@ export class BookService {
             if(!bookInfo){
                 throw new NotFoundException("Book Doesn't exist in our database")
             }
-            const status= this.repo.remove(bookInfo);
+            const status= await this.repo.remove(bookInfo);
+
             if (!status) {
                 throw new NotAcceptableException("Data is not store in server");
             }

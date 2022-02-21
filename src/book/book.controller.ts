@@ -8,10 +8,10 @@ import { UpdateBookDto } from './dto/update-book.dto';
 export class BookController {
 
     constructor(private bookService:BookService){}
-    
 
     @Get()
     async findBookDetails(@Query() paginationQuery:PaginationQuery){
+        console.log(paginationQuery)
         const bookInfo  = await this.bookService.findBookDetails(paginationQuery)
         return bookInfo
     }

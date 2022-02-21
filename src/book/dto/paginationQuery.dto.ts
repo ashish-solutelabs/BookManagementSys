@@ -1,10 +1,10 @@
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import {  IsOptional, IsString } from "class-validator";
 
 export class PaginationQuery{
     
     @IsString()
     @IsOptional()
-    isbn:number
+    isbn:string
     
     @IsString()
     @IsOptional()
