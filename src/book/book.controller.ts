@@ -12,8 +12,7 @@ export class BookController {
     @Get()
     async findBookDetails(@Query() paginationQuery:PaginationQuery){
         console.log(paginationQuery)
-        const bookInfo  = await this.bookService.findBookDetails(paginationQuery)
-        return bookInfo
+        return await this.bookService.findBookDetails(paginationQuery)
     }
 
     @Get(':id')

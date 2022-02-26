@@ -1,0 +1,14 @@
+### who i am
+
+GET http://localhost:3000/user/who
+
+
+###signin
+POST http://localhost:3000/user/signin
+
+content-Type: application/json
+
+{
+    "email":"ashish@gmail.com",
+    "password":"asbpppa"
+}
