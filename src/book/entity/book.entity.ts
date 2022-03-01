@@ -1,16 +1,17 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "src/user/entity/user.entity";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity('book')
 export class Book{
     @PrimaryGeneratedColumn()
-    id:number;
+    book_id:number;
 
-    @Column({ type: "bigint",unique:true})
-    isbn: number;
+    @Column({unique:true})
+    isbn: string;
 
     @Column()
-    bookName: string;
+    bookname: string;
 
     @Column()
     auther: string;
@@ -29,5 +30,13 @@ export class Book{
 
     @Column()
     price:number
-}
 
+    @ManyToOne(type => User, user => user.books, { eager: false })
+    @JoinColumn()
+    user: User;
+
+    @Column()
+    userId: number;
+
+
+}

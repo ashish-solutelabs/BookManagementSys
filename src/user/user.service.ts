@@ -1,62 +1,69 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entity/user.entity';
-import { randomBytes,scrypt as _scrypt } from "crypto";
-import { promisify } from "util";
+import * as bcrypt from 'bcrypt';
+import { CreateUserDto } from './dto/create-user.dto';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './jwt-payload.interface';
 
-const scrypt = promisify(_scrypt)
+
 
 
 @Injectable()
 export class UserService {
-    constructor(@InjectRepository(User) private repo: Repository<User>){}
+    constructor(
+        @InjectRepository(User) private repo: Repository<User>,
+        private jwtService:JwtService,
+    ){}
 
     async signup(body : any)
     {
-        const {email,password} = body
-        const users= await this.repo.find({email})
-       
-        if(users.length){
-            throw new BadRequestException("Dublicate Email found")
-        }
+        const { email, password } = body;
+        const user = new User();
 
-        //hashing
-        const salt = randomBytes(8).toString('hex');
-        const hash = await (scrypt(password,salt,16)) as Buffer;
-        const result  = salt + '.'+hash.toString('hex');
+        user.email = email;
+        const salt = await bcrypt.genSalt();
+        user.password = await this.hashPassword(password, salt);
+        // console.log(user.password,".",salt)
+        // user.password = user.password+"*"+salt
 
-        body.password = result
+        try {
+            await this.repo.save(user);
+        } catch (error) {
 
-        const status = await this.repo.save(body);
-        if(!status){
-            throw new BadRequestException("user data is not store in server")
-        }
-        return status
-    }
-
-
-    async signin(body:any)
-    {
-        const {email,password} = body
-        const [user]= await this.repo.find({email})
-        if(!user){
-            throw new BadRequestException("User is not found");
-        }
-
-        const [salt,storedHash] = user.password.split('.');
-
-        const hash = (await scrypt(password,salt,16)) as Buffer;
-
-        if(storedHash === hash.toString('hex'))
-        {
-            return user
-        }else{
-            throw new BadRequestException("bad password")
+          if (error.code === '23505') { // duplicate username
+            throw new ConflictException('email already exists');
+          } else {
+            throw new InternalServerErrorException();
+          }
         }
     }
 
-    async findUser(userId:number){
-        return await this.repo.findOne(userId);
+    private async hashPassword(password: string, salt: string): Promise<string> {
+        return bcrypt.hash(password, salt);
+    }
+
+    async validateUserPassword(createUserDto: CreateUserDto): Promise<string> {
+        const { email, password } = createUserDto;
+        const user = await this.repo.findOne({ email });
+    
+        if (user && await user.validatePassword(password)) {
+          return user.email;
+        } else {
+          return null;
+        }
+    }
+
+    async signin(body:any) :Promise<{accessToken:string}>{
+        const email = await this.validateUserPassword(body);
+
+        if (!email) {
+             throw new UnauthorizedException('Invalid credentials');
+        }
+        const payload:JwtPayload = {email}
+        const accessToken = this.jwtService.sign(payload);
+
+        return {accessToken}
     }
 }

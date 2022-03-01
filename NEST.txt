@@ -1,0 +1,11 @@
+PIPE: 
+@Injectable() PipeTransform (interface)
+-->transformation:string to int
+-->validation: input data validation
+
+>Binding Pipe: 
+    -inside findOne("id", parseIntPipe)
+
+>Custome PIPE:
+    -ValidationPipe + PipeTransfer
+    -transform<type,return type value>

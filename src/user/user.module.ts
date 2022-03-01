@@ -3,17 +3,25 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { User } from './entity/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthService } from './auth.service';
-import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([User])],
-  providers: [UserService,AuthService,
-    {
-      provide:APP_INTERCEPTOR,
-      useClass: CurrentUserInterceptor
-    }],
-  controllers: [UserController]
-})
+  imports:[TypeOrmModule.forFeature([User]),
+        PassportModule.register({defaultStrategy:'jwt'}),
+        JwtModule.register({
+          secret:'solute85',
+          signOptions:{
+            expiresIn:3600,
+          }
+        }),
+  ],
+  providers: [UserService,JwtStrategy],
+  controllers: [UserController],
+  exports :[
+    JwtStrategy,
+    PassportModule
+  ],
+}) 
 export class UserModule {}

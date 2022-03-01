@@ -2,11 +2,11 @@ import { IsNumber, IsString } from "class-validator";
 
 
 export class CreateBookDto{
-    @IsNumber()
-    isbn:number
+    @IsString()
+    isbn:string
 
     @IsString()
-    bookName:string
+    bookname:string
 
     @IsString()
     auther:string
@@ -25,4 +25,5 @@ export class CreateBookDto{
 
     @IsNumber()
     price:number
+    user: import("d:/Company task/src/user/entity/user.entity").User;
 }

@@ -3,7 +3,7 @@ import { IsNumber, IsOptional, IsString } from "class-validator";
 export class UpdateBookDto{
     @IsString()
     @IsOptional()
-    bookName:string
+    bookname:string
 
     @IsString()
     @IsOptional()
