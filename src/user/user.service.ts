@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import {  ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entity/user.entity';
@@ -20,19 +20,23 @@ export class UserService {
     async signup(body : any)
     {
         const { email, password } = body;
+
+        const dublicateEmail = this.repo.findOne({email});
+        if(dublicateEmail){
+          throw new ConflictException("dublicate email found")
+        }
+
         const user = new User();
 
         user.email = email;
         const salt = await bcrypt.genSalt();
         user.password = await this.hashPassword(password, salt);
-        // console.log(user.password,".",salt)
-        // user.password = user.password+"*"+salt
 
         try {
             await this.repo.save(user);
         } catch (error) {
 
-          if (error.code === '23505') { // duplicate username
+          if (error.code === '23505') {
             throw new ConflictException('email already exists');
           } else {
             throw new InternalServerErrorException();
@@ -61,7 +65,7 @@ export class UserService {
         if (!email) {
              throw new UnauthorizedException('Invalid credentials');
         }
-        const payload:JwtPayload = {email}
+        const payload:JwtPayload = { email }
         const accessToken = this.jwtService.sign(payload);
 
         return {accessToken}

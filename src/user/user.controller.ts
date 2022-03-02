@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, Session, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Post, ValidationPipe } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import {UserService} from './user.service'
 
@@ -11,7 +11,6 @@ export class UserController {
     async signup(@Body(ValidationPipe) body:CreateUserDto):Promise<void>{
         return  await this.userService.signup(body)
     }
-
     
     @Post('/signin')
     async signin(@Body(ValidationPipe) body:CreateUserDto):Promise<{accessToken:string}>{

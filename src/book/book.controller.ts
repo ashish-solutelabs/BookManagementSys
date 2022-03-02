@@ -15,13 +15,11 @@ export class BookController {
 
     @Get()
     async findBookDetails(@Query() query:PaginationQuery,@GetUser() user:User){
-        console.log(query)
         return await this.bookService.findBookDetails(query,user)
     }
 
     @Get(':id')
     async findById(@Param('id') id:number,@GetUser() user:User){
-        console.log("id throw")
         return await this.bookService.findByUserId(id,user)
     }
 
@@ -36,9 +34,8 @@ export class BookController {
     }
 
     @Delete(':id')
-    async removeBookDataByISBN(@Param() id:number)
+    async removeBookDataByISBN(@Param('id') id:number,@GetUser() user:User)
     {
-        const status = await this.bookService.removeBookDataByISBN(id); 
-        return status;
+        return await this.bookService.removeBookDataByISBN(id,user); 
     }
 }

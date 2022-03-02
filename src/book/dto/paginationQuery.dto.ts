@@ -8,9 +8,11 @@ export class PaginationQuery{
     
     @IsString()
     @IsOptional()
-    bookName:string
+    bookname:string
 
     @IsString()
     @IsOptional()
     auther:string
+
+
 }
